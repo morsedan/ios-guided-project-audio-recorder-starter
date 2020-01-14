@@ -18,28 +18,28 @@ class AudioRecorderController: UIViewController {
     @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var timeRemainingLabel: UILabel!
     @IBOutlet weak var timeSlider: UISlider!
-
+    
     // MARK: - Properties
     
     // Recording
     var audioRecorder: AVAudioRecorder?
-	
-	private lazy var timeFormatter: DateComponentsFormatter = {
-		let formatting = DateComponentsFormatter()
-		formatting.unitsStyle = .positional // 00:00  mm:ss
-		// NOTE: DateComponentsFormatter is good for minutes/hours/seconds
-		// DateComponentsFormatter not good for milliseconds, use DateFormatter instead)
-		formatting.zeroFormattingBehavior = .pad
-		formatting.allowedUnits = [.minute, .second]
-		return formatting
-	}()
+    
+    private lazy var timeFormatter: DateComponentsFormatter = {
+        let formatting = DateComponentsFormatter()
+        formatting.unitsStyle = .positional // 00:00  mm:ss
+        // NOTE: DateComponentsFormatter is good for minutes/hours/seconds
+        // DateComponentsFormatter not good for milliseconds, use DateFormatter instead)
+        formatting.zeroFormattingBehavior = .pad
+        formatting.allowedUnits = [.minute, .second]
+        return formatting
+    }()
     
     // MARK: - Lifecycle Methods
-	
-	override func viewDidLoad() {
-		super.viewDidLoad()
-
-
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        
         timeLabel.font = UIFont.monospacedDigitSystemFont(ofSize: timeLabel.font.pointSize,
                                                           weight: .regular)
         timeRemainingLabel.font = UIFont.monospacedDigitSystemFont(ofSize: timeRemainingLabel.font.pointSize,
@@ -47,7 +47,7 @@ class AudioRecorderController: UIViewController {
         
         loadAudio()
         updateViews()
-	}
+    }
     
     // MARK: - Playback
     /*
@@ -63,7 +63,7 @@ class AudioRecorderController: UIViewController {
     var isPlaying: Bool {
         audioPlayer?.isPlaying ?? false
     }
-
+    
     private func loadAudio() {
         // piano.mp3
         
@@ -75,33 +75,19 @@ class AudioRecorderController: UIViewController {
         audioPlayer = try! AVAudioPlayer(contentsOf: songURL) // RISKY: will crash if not there, do, try, catch would be better
         audioPlayer?.delegate = self
     }
- 
+    
     func play() {
         audioPlayer?.play()
         startTimer()
         updateViews()
     }
     
-    func startTimer() {
-        cancelTimer()
-        timer = Timer.scheduledTimer(timeInterval: 0.03, target: self, selector: #selector(updateTimer(timer:)), userInfo: nil, repeats: true)
-    }
-    
-    @objc private func updateTimer(timer: Timer) {
-        updateViews()
-    }
-
     func pause() {
         audioPlayer?.pause()
         cancelTimer()
         updateViews()
     }
     
-    private func cancelTimer() {
-        timer?.invalidate()
-        timer = nil
-    }
-
     func playPause() {
         if isPlaying {
             pause()
@@ -110,12 +96,26 @@ class AudioRecorderController: UIViewController {
         }
     }
     
+    private func startTimer() {
+        cancelTimer()
+        timer = Timer.scheduledTimer(timeInterval: 0.03, target: self, selector: #selector(updateTimer(timer:)), userInfo: nil, repeats: true)
+    }
+    
+    @objc private func updateTimer(timer: Timer) {
+        updateViews()
+    }
+    
+    private func cancelTimer() {
+        timer?.invalidate()
+        timer = nil
+    }
+    
     @IBAction func playButtonPressed(_ sender: Any) {
         playPause()
     }
     
     // MARK: - Record
-
+    
     @IBAction func recordButtonPressed(_ sender: Any) {
         recordToggle()
     }
@@ -135,7 +135,7 @@ class AudioRecorderController: UIViewController {
         // 2020-1-14.caf
         let file = documentsDirectory.appendingPathComponent(name).appendingPathExtension("caf")
         
-//        print("record URL: \(file)")
+        //        print("record URL: \(file)")
         
         // 44.1 Khz is CD quality audio
         let format = AVAudioFormat(standardFormatWithSampleRate: 44_100, channels: 1)!
@@ -175,6 +175,7 @@ class AudioRecorderController: UIViewController {
         
         let elapsedTime = audioPlayer?.currentTime ?? 0
         timeLabel.text = timeFormatter.string(from: elapsedTime)
+        timeRemainingLabel.text = timeFormatter.string(from: (audioPlayer?.duration ?? 0) - elapsedTime)
         
         timeSlider.minimumValue = 0
         timeSlider.maximumValue = Float(audioPlayer?.duration ?? 0)
