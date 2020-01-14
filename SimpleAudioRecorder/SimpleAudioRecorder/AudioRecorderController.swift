@@ -213,6 +213,7 @@ extension AudioRecorderController: AVAudioRecorderDelegate {
         
         if let recordURL = recordURL {
             audioPlayer = try! AVAudioPlayer(contentsOf: recordURL) // FIXME: make safer
+            updateViews()
         }
     }
 }
